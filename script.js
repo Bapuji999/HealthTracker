@@ -172,5 +172,28 @@ function exportAveragesToJSON() {
   link.download = "health_entries.json";
   link.click();
 }
+function uploadAndResetEntries(event) {
+  const file = event.target.files[0];
+  if (!file) return;
 
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result).map(entry => ({
+        ...entry,
+        datetime: new Date(entry.datetime)
+      }));
+
+      // Overwrite current entries
+      entries = imported;
+      localStorage.setItem("healthEntries", JSON.stringify(entries));
+      alert("Entries successfully uploaded and reset!");
+      setView("entry"); // Optional: refresh to entry view
+    } catch (err) {
+      console.error("Failed to import JSON:", err);
+      alert("Invalid JSON file.");
+    }
+  };
+  reader.readAsText(file);
+}
 setView("entry");
