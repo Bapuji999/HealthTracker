@@ -20,3 +20,6 @@
 .input-field {
   @apply  w-[95%]
 }
+.input {
+  @apply  w-[95%]
+}
