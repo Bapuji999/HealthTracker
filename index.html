@@ -6,22 +6,23 @@
   <title>Health Tracker</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="bg-gray-50 font-[Inter]">
   <header class="bg-teal-600 text-white py-4 shadow-md">
     <h1 class="text-2xl font-semibold text-center">Health Tracker</h1>
     <nav class="flex justify-center mt-2 gap-3">
-      <button class="px-4 py-2 bg-white text-teal-700 font-semibold rounded-md shadow-sm hover:bg-teal-100" onclick="setView('entry')">Entry</button>
-      <button class="px-4 py-2 bg-white text-teal-700 font-semibold rounded-md shadow-sm hover:bg-teal-100" onclick="setView('charts')">Charts</button>
-      <button class="px-4 py-2 bg-white text-teal-700 font-semibold rounded-md shadow-sm hover:bg-teal-100" onclick="setView('averages')">Averages</button>
-      <button class="px-4 py-2 bg-white text-teal-700 font-semibold rounded-md shadow-sm hover:bg-teal-100" onclick="setView('history')">History</button>
+      <button class="nav-button" onclick="setView('entry')">Entry</button>
+      <button class="nav-button" onclick="setView('charts')">Charts</button>
+      <button class="nav-button" onclick="setView('averages')">Averages</button>
+      <button class="nav-button" onclick="setView('history')">History</button>
     </nav>
   </header>
 
   <main class="max-w-6xl mx-auto py-9 px-4">
     <section id="entry-view" class="hidden">
-      <h2 class="text-xl font-semibold mb-4">Health Entry</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+      <h2 class="section-title">Health Entry</h2>
+      <div class="input-grid mb-6">
         <input type="number" id="weight" placeholder="Weight (kg)" class="input-field" oninput="calculateOtherWeight()">
         <input type="number" id="bmi" placeholder="BMI" class="input-field">
         <input type="number" id="smm" placeholder="SMM" class="input-field" oninput="calculateOtherWeight()">
@@ -30,26 +31,26 @@
         <input type="number" id="otherWeight" placeholder="Other Weight" class="input-field">
         <input type="datetime-local" id="datetime" class="input-field">
       </div>
-      <button onclick="saveEntry()" class="bg-teal-600 text-white px-6 py-2 rounded-md hover:bg-teal-700">Save Entry</button>
+      <button onclick="saveEntry()" class="submit-button">Save Entry</button>
     </section>
 
     <section id="charts-view" class="hidden h-[500px]">
-      <h2 class="text-xl font-semibold mb-4">Health Metrics Over Time</h2>
+      <h2 class="section-title">Health Metrics Over Time</h2>
       <canvas id="healthChart"></canvas>
     </section>
 
     <section id="averages-view" class="hidden">
-      <h2 class="text-xl font-semibold mb-4">Average Metrics</h2>
+      <h2 class="section-title">Average Metrics</h2>
       <div class="flex flex-col sm:flex-row gap-4 mb-4">
         <input type="date" id="fromDate" class="input-field">
         <input type="date" id="toDate" class="input-field">
-        <button onclick="calculateAverages()" class="bg-teal-600 text-white px-6 py-2 rounded-md hover:bg-teal-700">Calculate Averages</button>
+        <button onclick="calculateAverages()" class="submit-button">Calculate Averages</button>
       </div>
       <div id="averagesResult" class="text-gray-700"></div>
     </section>
 
     <section id="history-view" class="hidden">
-      <h2 class="text-xl font-semibold mb-4">Entry History</h2>
+      <h2 class="section-title">Entry History</h2>
       <div class="overflow-auto">
         <table class="w-full border border-gray-200 rounded-md overflow-hidden">
           <thead class="bg-gray-100">
@@ -70,150 +71,6 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    let entries = JSON.parse(localStorage.getItem("healthEntries") || "[]").map(e => ({ ...e, datetime: new Date(e.datetime) }));
-    let healthChartInstance = null;
-
-    function setView(view) {
-      document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
-      document.getElementById(`${view}-view`).classList.remove('hidden');
-      if (view === 'charts') renderChart();
-      if (view === 'history') renderHistory();
-    }
-    function calculateOtherWeight() {
-      const weight = parseFloat(document.getElementById("weight").value);
-      const smm = parseFloat(document.getElementById("smm").value);
-      const fat = parseFloat(document.getElementById("fat").value);
-
-      if (!isNaN(weight) && !isNaN(smm) && !isNaN(fat)) {
-        const fatWeight = (fat / 100) * weight;
-        const otherWeight = weight - smm - fatWeight;
-        document.getElementById("otherWeight").value = otherWeight.toFixed(2);
-      }
-    }
-    function saveEntry() {
-      const entry = {
-        weight: parseFloat(document.getElementById("weight").value),
-        bmi: parseFloat(document.getElementById("bmi").value),
-        smm: parseFloat(document.getElementById("smm").value),
-        fat: parseFloat(document.getElementById("fat").value),
-        whr: parseFloat(document.getElementById("whr").value),
-        otherWeight: parseFloat(document.getElementById("otherWeight").value),
-        datetime: new Date(document.getElementById("datetime").value)
-      };
-      if (Object.values(entry).some(val => isNaN(val) || val instanceof Date && isNaN(val))) {
-        alert("Please fill in all fields with valid values.");
-        return;
-      }
-      entries.push(entry);
-      localStorage.setItem("healthEntries", JSON.stringify(entries));
-      alert("Entry saved!");
-      document.querySelectorAll("#entry-view input").forEach(i => i.value = "");
-    }
-
-    function renderChart() {
-      const ctx = document.getElementById("healthChart").getContext("2d");
-      if (healthChartInstance) healthChartInstance.destroy();
-      if (!entries.length) return;
-      const labels = entries.map(e => new Date(e.datetime).toLocaleDateString());
-      const datasets = [
-        { label: "Weight", data: entries.map(e => e.weight), borderColor: "#007BFF", fill: false },
-        { label: "BMI", data: entries.map(e => e.bmi), borderColor: "#60a5fa", fill: false },
-        { label: "SMM", data: entries.map(e => e.smm), borderColor: "#FFDC00", fill: false },
-        { label: "Fat %", data: entries.map(e => e.fat), borderColor: "#FF4136", fill: false },
-        { label: "WHR", data: entries.map(e => e.whr), borderColor: "#FF851B", fill: false },
-        { label: "Other Weight", data: entries.map(e => e.otherWeight), borderColor: "#B10DC9", fill: false }
-      ];
-      healthChartInstance = new Chart(ctx, {
-        type: "line",
-        data: { labels, datasets: datasets.map(ds => ({
-      ...ds,
-      backgroundColor: ds.borderColor, // Match the fill with line color
-      pointStyle: 'rect', // Legend symbol shape
-    })), },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            x: { title: { display: true, text: 'Date' } },
-            y: { title: { display: true, text: 'Metric Value' } }
-          },
-          plugins: {
-            usePointStyle: true,
-            legend: { position: 'top' },
-            tooltip: { enabled: true }
-          }
-        }
-      });
-    }
-
-    function renderHistory() {
-      const tbody = document.getElementById("historyTableBody");
-      tbody.innerHTML = entries.map(e => `
-        <tr>
-          <td class="p-2">${e.datetime.toLocaleString()}</td>
-          <td class="p-2">${e.weight}</td>
-          <td class="p-2">${e.bmi}</td>
-          <td class="p-2">${e.smm}</td>
-          <td class="p-2">${e.fat}</td>
-          <td class="p-2">${e.whr}</td>
-          <td class="p-2">${e.otherWeight}</td>
-        </tr>
-      `).join("");
-    }
-
-    function calculateAverages() {
-      const from = new Date(document.getElementById("fromDate").value);
-      const to = new Date(document.getElementById("toDate").value);
-      if (isNaN(from) || isNaN(to)) {
-        alert("Please select valid date range.");
-        return;
-      }
-      const filtered = entries.filter(e => e.datetime >= from && e.datetime <= to);
-      if (!filtered.length) {
-        document.getElementById("averagesResult").innerText = "No entries found in this date range.";
-        return;
-      }
-      const avg = key => filtered.reduce((sum, e) => sum + e[key], 0) / filtered.length;
-      document.getElementById("averagesResult").innerHTML = `
-        <p><strong>Average Weight:</strong> ${avg("weight").toFixed(2)} kg</p>
-        <p><strong>Average BMI:</strong> ${avg("bmi").toFixed(2)}</p>
-        <p><strong>Average SMM:</strong> ${avg("smm").toFixed(2)}</p>
-        <p><strong>Average Fat %:</strong> ${avg("fat").toFixed(2)}</p>
-        <p><strong>Average WHR:</strong> ${avg("whr").toFixed(2)}</p>
-        <p><strong>Average Other Weight:</strong> ${avg("otherWeight").toFixed(2)} kg</p>
-        <button onclick="exportAveragesToCSV()" class="mt-4 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">Download CSV</button>
-      `;
-    }
-
-    function exportAveragesToCSV() {
-      const from = new Date(document.getElementById("fromDate").value);
-      const to = new Date(document.getElementById("toDate").value);
-      const filtered = entries.filter(e => e.datetime >= from && e.datetime <= to);
-      if (!filtered.length) return;
-      const avg = key => filtered.reduce((sum, e) => sum + e[key], 0) / filtered.length;
-      const rows = [
-        ["Metric", "Average"],
-        ["Weight", avg("weight").toFixed(2)],
-        ["BMI", avg("bmi").toFixed(2)],
-        ["SMM", avg("smm").toFixed(2)],
-        ["Fat %", avg("fat").toFixed(2)],
-        ["WHR", avg("whr").toFixed(2)],
-        ["Other Weight", avg("otherWeight").toFixed(2)]
-      ];
-      const csvContent = rows.map(r => r.join(",")).join("\n");
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "average_metrics.csv";
-      link.click();
-    }
-
-    document.querySelectorAll('.input-field').forEach(input => {
-      input.classList.add("border", "border-gray-300", "rounded-md", "px-3", "py-2", "w-full", "focus:outline-none", "focus:ring-2", "focus:ring-teal-500");
-    });
-
-    setView("entry");
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
