@@ -1,0 +1,19 @@
+.input-field {
+  @apply border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-teal-500;
+}
+
+.nav-button {
+  @apply px-4 py-2 bg-white text-teal-700 font-semibold rounded-md shadow-sm hover:bg-teal-100;
+}
+
+.submit-button {
+  @apply bg-teal-600 text-white px-6 py-2 rounded-md hover:bg-teal-700;
+}
+
+.input-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4;
+}
+
+.section-title {
+  @apply text-xl font-semibold mb-4;
+}
