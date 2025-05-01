@@ -17,3 +17,6 @@
 .section-title {
   @apply text-xl font-semibold mb-4;
 }
+.input-field {
+  @apply  w-[95%]
+}
