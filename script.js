@@ -150,7 +150,7 @@ function calculateAverages() {
     <p><strong>Average Fat %:</strong> ${avg("fat").toFixed(2)}</p>
     <p><strong>Average WHR:</strong> ${avg("whr").toFixed(2)}</p>
     <p><strong>Average Other Weight:</strong> ${avg("otherWeight").toFixed(2)} kg</p>
-    <button onclick="exportAveragesToJSON()" class="mt-4 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">Download CSV</button>
+    <button onclick="exportAveragesToJSON()" class="mt-4 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">Download Backup</button>
   `;
 }
 
@@ -160,26 +160,16 @@ function exportAveragesToJSON() {
   const filtered = entries.filter(e => e.datetime >= from && e.datetime <= to);
   if (!filtered.length) return;
 
-  const avg = key => filtered.reduce((sum, e) => sum + e[key], 0) / filtered.length;
+  // Convert Date objects back to ISO strings for export
+  const jsonReadyEntries = filtered.map(e => ({
+    ...e,
+    datetime: e.datetime.toISOString()
+  }));
 
-  const data = {
-    from: from.toISOString(),
-    to: to.toISOString(),
-    averages: {
-      weight: avg("weight").toFixed(2),
-      bmi: avg("bmi").toFixed(2),
-      smm: avg("smm").toFixed(2),
-      fat: avg("fat").toFixed(2),
-      whr: avg("whr").toFixed(2),
-      otherWeight: avg("otherWeight").toFixed(2)
-    }
-  };
-
-  const jsonContent = JSON.stringify(data, null, 2);
-  const blob = new Blob([jsonContent], { type: "application/json" });
+  const blob = new Blob([JSON.stringify(jsonReadyEntries, null, 2)], { type: "application/json" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "average_metrics.json";
+  link.download = "health_entries.json";
   link.click();
 }
 
