@@ -23,13 +23,13 @@
     <section id="entry-view" class="hidden">
       <h2 class="section-title">Health Entry</h2>
       <div class="input-grid mb-6">
-        <input type="number" id="weight" placeholder="Weight (kg)" class="input-field" oninput="calculateOtherWeight()">
-        <input type="number" id="bmi" placeholder="BMI" class="input-field">
-        <input type="number" id="smm" placeholder="SMM" class="input-field" oninput="calculateOtherWeight()">
-        <input type="number" id="fat" placeholder="Fat %" class="input-field" oninput="calculateOtherWeight()">
-        <input type="number" id="whr" placeholder="WHR" class="input-field">
-        <input type="number" id="otherWeight" placeholder="Other Weight" class="input-field">
-        <input type="datetime-local" id="datetime" class="input-field">
+        <input type="number" id="weight" placeholder="Weight (kg)" class="input-field w-full" oninput="calculateOtherWeight()">
+        <input type="number" id="bmi" placeholder="BMI" class="input-field w-full">
+        <input type="number" id="smm" placeholder="SMM" class="input-field w-full" oninput="calculateOtherWeight()">
+        <input type="number" id="fat" placeholder="Fat %" class="input-field w-full" oninput="calculateOtherWeight()">
+        <input type="number" id="whr" placeholder="WHR" class="input-field w-full">
+        <input type="number" id="otherWeight" placeholder="Other Weight" class="input-field w-full">
+        <input type="datetime-local" id="datetime" class="input-field w-full">
       </div>
       <button onclick="saveEntry()" class="submit-button">Save Entry</button>
     </section>
@@ -42,8 +42,8 @@
     <section id="averages-view" class="hidden">
       <h2 class="section-title">Average Metrics</h2>
       <div class="flex flex-col sm:flex-row gap-4 mb-4">
-        <input type="date" id="fromDate" class="input-field">
-        <input type="date" id="toDate" class="input-field">
+        <input type="date" id="fromDate" class="input-field w-full">
+        <input type="date" id="toDate" class="input-field w-full">
         <button onclick="calculateAverages()" class="submit-button">Calculate Averages</button>
       </div>
       <div id="averagesResult" class="text-gray-700"></div>
