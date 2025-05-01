@@ -133,6 +133,7 @@ function renderHistory() {
 function calculateAverages() {
   const from = new Date(document.getElementById("fromDate").value);
   const to = new Date(document.getElementById("toDate").value);
+  calculateSmmAndFatChange(entries, from, to);
   if (isNaN(from) || isNaN(to)) {
     alert("Please select valid date range.");
     return;
@@ -144,7 +145,7 @@ function calculateAverages() {
   }
   const avg = key => filtered.reduce((sum, e) => sum + e[key], 0) / filtered.length;
   document.getElementById("averagesResult").innerHTML = `
-    <p><strong>Average Weight:</strong> ${avg("weight").toFixed(2)} kg</p>
+    <p><strong>No Of Days:</strong> ${(to - from) / (1000 * 60 * 60 * 24)}</p>
     <p><strong>Average BMI:</strong> ${avg("bmi").toFixed(2)}</p>
     <p><strong>Average SMM:</strong> ${avg("smm").toFixed(2)}</p>
     <p><strong>Average Fat %:</strong> ${avg("fat").toFixed(2)}</p>
@@ -153,7 +154,10 @@ function calculateAverages() {
     <button onclick="exportAveragesToJSON()" class="mt-4 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">Download Backup</button>
   `;
 }
-
+function Reset(){
+  document.getElementById("averagesResult").innerHTML = ``;
+  document.getElementById("resultTable").style.display = "none";
+}
 function exportAveragesToJSON() {
   const from = new Date(document.getElementById("fromDate").value);
   const to = new Date(document.getElementById("toDate").value);
@@ -196,4 +200,79 @@ function uploadAndResetEntries(event) {
   };
   reader.readAsText(file);
 }
+
+function getNearestData(records, targetDate) {
+  return records.reduce((a, b) => {
+    return Math.abs(new Date(a.datetime) - targetDate) <
+           Math.abs(new Date(b.datetime) - targetDate)
+      ? a
+      : b;
+  });
+}
+
+function calculateChangeRate(start, end, key, daysBetween) {
+  let ratePerWeekKg = 0;
+  let ratePerWeekPercent = 0;
+  let diffKg = 0;
+  if(key == "smm"){
+    diffKg = end[key] - start[key]; // ← actual change in kg
+    ratePerWeekKg = (diffKg / daysBetween) * 7;
+    const startp =  (start[key] / start["weight"]) * 100;
+    const endp =  (end[key] / end["weight"]) * 100;
+    ratePerWeekPercent = ((endp - startp) / daysBetween) * 7;
+    
+
+    return {
+      key,
+      start: start[key],
+      end: end[key],
+      changeKg: parseFloat(diffKg.toFixed(2)), // ← NEW
+      ratePerWeekKg: parseFloat(ratePerWeekKg.toFixed(2)),
+      ratePerWeekPercent: parseFloat(ratePerWeekPercent.toFixed(2)),
+    };
+  }
+  if(key == "fat"){
+    const fatKgStart = start["weight"] * (start[key] / 100);
+    const fatKgEnd = start["weight"] * (end[key] / 100);
+    const diff = end[key] - start[key]; // ← actual change in %
+    diffKg = fatKgEnd - fatKgStart;
+    ratePerWeekKg = (diffKg / daysBetween) * 7;
+    ratePerWeekPercent = (diff / daysBetween) * 7;
+    
+
+    return {
+      key,
+      start: parseFloat(fatKgStart.toFixed(2)),
+      end: parseFloat(fatKgEnd.toFixed(2)),
+      changeKg: parseFloat(diffKg.toFixed(2)), // ← NEW
+      ratePerWeekKg: parseFloat(ratePerWeekKg.toFixed(2)),
+      ratePerWeekPercent: parseFloat(ratePerWeekPercent.toFixed(2)),
+    };
+  }
+}
+
+function calculateSmmAndFatChange(records, startDate, endDate) {
+  const start = getNearestData(records, startDate);
+  const end = getNearestData(records, endDate);
+  const daysBetween = (endDate - startDate) / (1000 * 60 * 60 * 24);
+
+  const fatChange = calculateChangeRate(start, end, "fat", daysBetween);
+  const smmChange = calculateChangeRate(start, end, "smm", daysBetween);
+  document.getElementById("fatStart").innerText = fatChange.start;
+  document.getElementById("fatEnd").innerText = fatChange.end;
+  document.getElementById("fatChange").innerText = fatChange.changeKg;
+  document.getElementById("fatRateKg").innerText = fatChange.ratePerWeekKg;
+  document.getElementById("fatRatePct").innerText = fatChange.ratePerWeekPercent;
+
+  document.getElementById("smmStart").innerText = start.smm;
+  document.getElementById("smmEnd").innerText = end.smm;
+  document.getElementById("smmChange").innerText = smmChange.changeKg;
+  document.getElementById("smmRateKg").innerText = smmChange.ratePerWeekKg;
+  document.getElementById("smmRatePct").innerText = smmChange.ratePerWeekPercent;
+
+  document.getElementById("resultTable").style.display = "table";
+  return { fatChange, smmChange };
+}
+
+
 setView("entry");

@@ -53,8 +53,39 @@
         <input type="date" id="fromDate" class="input-field w-full">
         <input type="date" id="toDate" class="input-field w-full">
         <button onclick="calculateAverages()" class="submit-button">Calculate Averages</button>
+        <button onclick="Reset()" class="submit-button">Reset</button>
       </div>
       <div id="averagesResult" class="text-gray-700"></div>
+      <table id="resultTable" style="display:none"  class="w-full border border-gray-200 rounded-md overflow-hidden">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="p-2">Metric</th>
+            <th class="p-2">Start Value (kg)</th>
+            <th class="p-2">End Value (kg)</th>
+            <th class="p-2">Change (kg)</th>
+            <th class="p-2">Rate/Week (kg)</th>
+            <th class="p-2">Rate/Week (%)</th>
+          </tr>
+        </thead>
+        <tbody class="text-center">
+          <tr>
+            <td class="p-2">Fat</td>
+            <td class="p-2" id="fatStart"></td>
+            <td class="p-2" id="fatEnd"></td>
+            <td class="p-2" id="fatChange"></td>
+            <td class="p-2" id="fatRateKg"></td>
+            <td class="p-2" id="fatRatePct"></td>
+          </tr>
+          <tr>
+            <td>SMM</td>
+            <td class="p-2" id="smmStart"></td>
+            <td class="p-2" id="smmEnd"></td>
+            <td class="p-2" id="smmChange"></td>
+            <td class="p-2" id="smmRateKg"></td>
+            <td class="p-2" id="smmRatePct"></td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
     <section id="history-view" class="hidden">
