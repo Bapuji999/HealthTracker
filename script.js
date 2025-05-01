@@ -1,10 +1,12 @@
 let entries = JSON.parse(localStorage.getItem("healthEntries") || "[]").map(e => ({ ...e, datetime: new Date(e.datetime) }));
 let healthChartInstance = null;
+let fatSmmChartInstance = null;
 
 function setView(view) {
   document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
   document.getElementById(`${view}-view`).classList.remove('hidden');
   if (view === 'charts') renderChart();
+  if (view === 'fatSmm') renderFatSmmChart();
   if (view === 'history') renderHistory();
 }
 
@@ -79,6 +81,40 @@ function renderChart() {
   });
 }
 
+function renderFatSmmChart() {
+  const ctx = document.getElementById("fatSmm").getContext("2d");
+  if (fatSmmChartInstance) fatSmmChartInstance.destroy();
+  if (!entries.length) return;
+  const labels = entries.map(e => new Date(e.datetime).toLocaleDateString());
+  const datasets = [
+    { label: "SMM", data: entries.map(e => e.smm), borderColor: "#FFDC00", fill: false },
+    { label: "Fat %", data: entries.map(e => e.fat), borderColor: "#FF4136", fill: false }
+  ];
+  fatSmmChartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: datasets.map(ds => ({
+        ...ds,
+        backgroundColor: ds.borderColor,
+        pointStyle: 'rect',
+      })),
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { title: { display: true, text: 'Date' } },
+        y: { title: { display: true, text: 'Metric Value' } }
+      },
+      plugins: {
+        usePointStyle: true,
+        legend: { position: 'top' },
+        tooltip: { enabled: true }
+      }
+    }
+  });
+}
 function renderHistory() {
   const tbody = document.getElementById("historyTableBody");
   tbody.innerHTML = entries.map(e => `

@@ -16,6 +16,7 @@
       <button class="nav-button" onclick="setView('charts')">Charts</button>
       <button class="nav-button" onclick="setView('averages')">Averages</button>
       <button class="nav-button" onclick="setView('history')">History</button>
+      <button class="nav-button" onclick="setView('fatSmm')">Fat:Smm</button>
     </nav>
   </header>
 
@@ -37,6 +38,11 @@
     <section id="charts-view" class="hidden h-[500px]">
       <h2 class="section-title">Health Metrics Over Time</h2>
       <canvas id="healthChart"></canvas>
+    </section>
+
+    <section id="fatSmm-view" class="hidden h-[500px]">
+      <h2 class="section-title">Fat:Smm</h2>
+      <canvas id="fatSmm"></canvas>
     </section>
 
     <section id="averages-view" class="hidden">
