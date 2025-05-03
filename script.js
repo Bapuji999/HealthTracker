@@ -340,11 +340,11 @@ async  function predict(){
           const predictions = await response.json();
           renderFatFutureChart(predictions);
         } else {
-          console.error('Error:', response.statusText);
+          alert('Error: ' + response.statusText);
         }
       } 
       catch (error) {
-        console.error('Error:', error);
+        alert('Error:' + error);
       }
     }
 }
