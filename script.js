@@ -333,6 +333,9 @@ async  function predict(){
         // Sending the request to the Flask API
         const response = await fetch('https://futurehealth-2.onrender.com/predict', {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
           body: formData,
         });
         
