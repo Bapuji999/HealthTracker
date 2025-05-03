@@ -333,21 +333,21 @@ async  function predict(){
         // Sending the request to the Flask API
         const response = await fetch('https://futurehealth-2.onrender.com/predict', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
           body: formData,
         });
         
         if (response.ok) {
           const predictions = await response.json();
           renderFatFutureChart(predictions);
-        } else {
-          alert('Error: ' + response.statusText);
+        }  else {
+          // Enhanced error handling
+          const errorText = await response.text();
+          console.error('Request failed:', response.status, errorText);
+          alert('Error: ' + response.statusText + '\n' + errorText);
         }
-      } 
-      catch (error) {
-        alert('Error:' + error);
+      } catch (error) {
+        console.error('Network or server error:', error);
+        alert('Error: ' + error.message);
       }
     }
 }
