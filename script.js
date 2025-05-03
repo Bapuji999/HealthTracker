@@ -1,6 +1,7 @@
 let entries = JSON.parse(localStorage.getItem("healthEntries") || "[]").map(e => ({ ...e, datetime: new Date(e.datetime) }));
 let healthChartInstance = null;
 let fatSmmChartInstance = null;
+let futureChartInstance = null;
 
 function setView(view) {
   document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
@@ -138,21 +139,46 @@ function calculateAverages() {
     alert("Please select valid date range.");
     return;
   }
-  const filtered = entries.filter(e => e.datetime >= from && e.datetime <= to);
+  const filtered = entries.filter(e => e.datetime >= from && e.datetime <= new Date(to.getTime() + 24 * 60 * 60 * 1000));
   if (!filtered.length) {
     document.getElementById("averagesResult").innerText = "No entries found in this date range.";
     return;
   }
   const avg = key => filtered.reduce((sum, e) => sum + e[key], 0) / filtered.length;
   document.getElementById("averagesResult").innerHTML = `
-    <p><strong>No Of Days:</strong> ${(to - from) / (1000 * 60 * 60 * 24)}</p>
-    <p><strong>Average BMI:</strong> ${avg("bmi").toFixed(2)}</p>
-    <p><strong>Average SMM:</strong> ${avg("smm").toFixed(2)}</p>
-    <p><strong>Average Fat %:</strong> ${avg("fat").toFixed(2)}</p>
-    <p><strong>Average WHR:</strong> ${avg("whr").toFixed(2)}</p>
-    <p><strong>Average Other Weight:</strong> ${avg("otherWeight").toFixed(2)} kg</p>
-    <button onclick="exportAveragesToJSON()" class="mt-4 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">Download Backup</button>
-  `;
+  <div class="text-sm text-gray-700 space-y-4">
+    <div class="flex justify-between">
+      <p><strong class="font-semibold text-gray-800">No Of Days:</strong></p>
+      <p>${(to - from) / (1000 * 60 * 60 * 24)}</p>
+    </div>
+    <div class="flex justify-between">
+      <p><strong class="font-semibold text-gray-800">Average BMI:</strong></p>
+      <p>${avg("bmi").toFixed(2)}</p>
+    </div>
+    <div class="flex justify-between">
+      <p><strong class="font-semibold text-gray-800">Average SMM:</strong></p>
+      <p>${avg("smm").toFixed(2)}</p>
+    </div>
+    <div class="flex justify-between">
+      <p><strong class="font-semibold text-gray-800">Average Fat %:</strong></p>
+      <p>${avg("fat").toFixed(2)}</p>
+    </div>
+    <div class="flex justify-between">
+      <p><strong class="font-semibold text-gray-800">Average WHR:</strong></p>
+      <p>${avg("whr").toFixed(2)}</p>
+    </div>
+    <div class="flex justify-between">
+      <p><strong class="font-semibold text-gray-800">Average Other Weight:</strong></p>
+      <p>${avg("otherWeight").toFixed(2)} kg</p>
+    </div>
+
+    <div class="flex justify-end mt-6">
+      <button onclick="exportAveragesToJSON()" class="bg-teal-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
+        Download Backup
+      </button>
+    </div>
+  </div>
+`;
 }
 function Reset(){
   document.getElementById("averagesResult").innerHTML = ``;
@@ -270,9 +296,93 @@ function calculateSmmAndFatChange(records, startDate, endDate) {
   document.getElementById("smmRateKg").innerText = smmChange.ratePerWeekKg;
   document.getElementById("smmRatePct").innerText = smmChange.ratePerWeekPercent;
 
-  document.getElementById("resultTable").style.display = "table";
+  document.getElementById("resultTable").style.display = '';
   return { fatChange, smmChange };
 }
 
+function createBlob(){
+  const from = new Date(document.getElementById("fromDate-f").value);
+  const to = new Date(document.getElementById("toDate-f").value);
+  const filtered = entries.filter(e => e.datetime >= from && e.datetime <= new Date(to.getTime() + 24 * 60 * 60 * 1000));
+  if (!filtered.length) return;
+
+  // Convert Date objects back to ISO strings for export
+  const jsonReadyEntries = filtered.map(e => ({
+    ...e,
+    datetime: e.datetime.toISOString()
+  }));
+
+  const blob = new Blob([JSON.stringify(jsonReadyEntries, null, 2)], { type: "application/json" });
+  return blob;
+}
+
+async  function predict(){
+  const blob = createBlob();  // File input element
+  const dateInput = document.getElementById("datetime-future");  // Date input element
+
+  const file = new File([blob], "data.json", { type: "application/json" });
+    const targetDate = dateInput.value || "2025-07-05";  // Default date
+    console.log(targetDate, file);
+
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);  // Add the file to form data
+      formData.append("target_date", targetDate);  // Add target date
+    
+      try {
+        // Sending the request to the Flask API
+        const response = await fetch('https://futurehealth-2.onrender.com/predict', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (response.ok) {
+          const predictions = await response.json();
+          renderFatFutureChart(predictions);
+        } else {
+          console.error('Error:', response.statusText);
+        }
+      } 
+      catch (error) {
+        console.error('Error:', error);
+      }
+    }
+}
+
+function renderFatFutureChart(predictions) {
+  const ctx = document.getElementById("future").getContext("2d");
+  if (futureChartInstance) futureChartInstance.destroy();
+  if (!predictions.length) return;
+  const labels = predictions.map(e => new Date(e.date).toLocaleDateString());
+  const datasets = [
+    { label: "smm", data: predictions.map(e => e.smm), borderColor: "#FFDC00", fill: false },
+    { label: "fat", data: predictions.map(e => e.fat), borderColor: "#FF4136", fill: false },
+    { label: "weight", data: predictions.map(e => e.weight), borderColor: "#007BFF", fill: false }
+  ];
+  futureChartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: datasets.map(ds => ({
+        ...ds,
+        backgroundColor: ds.borderColor,
+        pointStyle: 'rect',
+      })),
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { title: { display: true, text: 'Date' } },
+        y: { title: { display: true, text: 'Metric Value' } }
+      },
+      plugins: {
+        usePointStyle: true,
+        legend: { position: 'top' },
+        tooltip: { enabled: true }
+      }
+    }
+  });
+}
 
 setView("entry");

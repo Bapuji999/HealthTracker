@@ -17,25 +17,42 @@
       <button class="nav-button" onclick="setView('averages')">Averages</button>
       <button class="nav-button" onclick="setView('history')">History</button>
       <button class="nav-button" onclick="setView('fatSmm')">Fat:Smm</button>
+      <button class="nav-button" onclick="setView('future')">Future</button>
     </nav>
   </header>
 
   <main class="max-w-6xl mx-auto py-9 px-4">
-    <section id="entry-view" class="hidden">
-      <h2 class="section-title">Health Entry</h2>
-      <div class="input-grid mb-6">
-        <input type="number" id="weight" placeholder="Weight (kg)" class="input-field w-full" oninput="calculateOtherWeight()">
-        <input type="number" id="bmi" placeholder="BMI" class="input-field w-full">
-        <input type="number" id="smm" placeholder="SMM" class="input-field w-full" oninput="calculateOtherWeight()">
-        <input type="number" id="fat" placeholder="Fat %" class="input-field w-full" oninput="calculateOtherWeight()">
-        <input type="number" id="whr" placeholder="WHR" class="input-field w-full">
-        <input type="number" id="otherWeight" placeholder="Other Weight" class="input-field w-full">
-        <input type="datetime-local" id="datetime" class="input-field w-full">
+    <section id="entry-view" class="hidden max-w-3xl mx-auto bg-white shadow-lg rounded-2xl p-6 mt-6">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">🩺 Health Entry</h2>
+    
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <input type="number" id="weight" placeholder="Weight (kg)" class="input-field w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="calculateOtherWeight()" />
+    
+        <input type="number" id="bmi" placeholder="BMI" class="input-field w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+    
+        <input type="number" id="smm" placeholder="SMM" class="input-field w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="calculateOtherWeight()" />
+    
+        <input type="number" id="fat" placeholder="Fat %" class="input-field w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="calculateOtherWeight()" />
+    
+        <input type="number" id="whr" placeholder="WHR" class="input-field w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+    
+        <input type="number" id="otherWeight" placeholder="Other Weight" class="input-field w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+    
+        <input type="datetime-local" id="datetime" class="input-field w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 md:col-span-2" />
       </div>
-      <button onclick="saveEntry()" class="submit-button">Save Entry</button>
-      <label class="mt-4 block text-sm font-medium text-gray-700">Upload JSON</label>
-      <input type="file" accept="application/json" onchange="uploadAndResetEntries(event)" class="mt-2" />
+    
+      <div class="flex justify-end mb-6">
+        <button onclick="saveEntry()" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition duration-200">
+          Save Entry
+        </button>
+      </div>
+    
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Upload JSON</label>
+        <input type="file" accept="application/json" onchange="uploadAndResetEntries(event)" class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+      </div>
     </section>
+    
 
     <section id="charts-view" class="hidden h-[500px]">
       <h2 class="section-title">Health Metrics Over Time</h2>
@@ -47,46 +64,59 @@
       <canvas id="fatSmm"></canvas>
     </section>
 
-    <section id="averages-view" class="hidden">
-      <h2 class="section-title">Average Metrics</h2>
-      <div class="flex flex-col sm:flex-row gap-4 mb-4">
-        <input type="date" id="fromDate" class="input-field w-full">
-        <input type="date" id="toDate" class="input-field w-full">
-        <button onclick="calculateAverages()" class="submit-button">Calculate Averages</button>
-        <button onclick="Reset()" class="submit-button">Reset</button>
+    <section id="averages-view" class="hidden max-w-4xl mx-auto bg-white shadow-lg rounded-2xl p-6 mt-6">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">📊 Average Metrics</h2>
+    
+      <div class="flex flex-col sm:flex-row sm:items-end gap-4 mb-6">
+        <div class="flex-1">
+          <label for="fromDate" class="block text-sm font-medium text-gray-700 mb-1">From Date:</label>
+          <input type="date" id="fromDate" class="input-field w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="flex-1">
+          <label for="toDate" class="block text-sm font-medium text-gray-700 mb-1">To Date:</label>
+          <input type="date" id="toDate" class="input-field w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="flex gap-2">
+          <button onclick="calculateAverages()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">Calculate</button>
+          <button onclick="Reset()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-200">Reset</button>
+        </div>
       </div>
-      <div id="averagesResult" class="text-gray-700"></div>
-      <table id="resultTable" style="display:none"  class="w-full border border-gray-200 rounded-md overflow-hidden">
-        <thead class="bg-gray-100">
-          <tr>
-            <th class="p-2">Metric</th>
-            <th class="p-2">Start Value (kg)</th>
-            <th class="p-2">End Value (kg)</th>
-            <th class="p-2">Change (kg)</th>
-            <th class="p-2">Rate/Week (kg)</th>
-            <th class="p-2">Rate/Week (%)</th>
-          </tr>
-        </thead>
-        <tbody class="text-center">
-          <tr>
-            <td class="p-2">Fat</td>
-            <td class="p-2" id="fatStart"></td>
-            <td class="p-2" id="fatEnd"></td>
-            <td class="p-2" id="fatChange"></td>
-            <td class="p-2" id="fatRateKg"></td>
-            <td class="p-2" id="fatRatePct"></td>
-          </tr>
-          <tr>
-            <td>SMM</td>
-            <td class="p-2" id="smmStart"></td>
-            <td class="p-2" id="smmEnd"></td>
-            <td class="p-2" id="smmChange"></td>
-            <td class="p-2" id="smmRateKg"></td>
-            <td class="p-2" id="smmRatePct"></td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+    
+      <div id="averagesResult" class="text-gray-700 mb-6 text-sm"></div>
+    
+      <div id="resultTable" class="overflow-x-auto">
+        <table class="w-full table-auto border border-gray-300 rounded-lg shadow-sm">
+          <thead class="bg-gray-100 text-gray-700 text-sm font-medium">
+            <tr>
+              <th class="p-3 text-left">Metric</th>
+              <th class="p-3 text-right">Start Value (kg)</th>
+              <th class="p-3 text-right">End Value (kg)</th>
+              <th class="p-3 text-right">Change (kg)</th>
+              <th class="p-3 text-right">Rate/Week (kg)</th>
+              <th class="p-3 text-right">Rate/Week (%)</th>
+            </tr>
+          </thead>
+          <tbody class="text-center text-sm text-gray-800 max-h-60 overflow-y-auto">
+            <tr class="hover:bg-gray-50">
+              <td class="p-3 text-left">Fat</td>
+              <td class="p-3" id="fatStart"></td>
+              <td class="p-3" id="fatEnd"></td>
+              <td class="p-3" id="fatChange"></td>
+              <td class="p-3" id="fatRateKg"></td>
+              <td class="p-3" id="fatRatePct"></td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="p-3 text-left">SMM</td>
+              <td class="p-3" id="smmStart"></td>
+              <td class="p-3" id="smmEnd"></td>
+              <td class="p-3" id="smmChange"></td>
+              <td class="p-3" id="smmRateKg"></td>
+              <td class="p-3" id="smmRatePct"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>    
 
     <section id="history-view" class="hidden">
       <h2 class="section-title">Entry History</h2>
@@ -107,6 +137,38 @@
         </table>
       </div>
     </section>
+
+    <section id="future-view" class="hidden max-w-3xl mx-auto bg-white shadow-lg rounded-2xl p-6 mt-6">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">📈 Weekly Prediction</h2>
+    
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label for="fromDate-f" class="block text-sm font-medium text-gray-700 mb-1">From Date:</label>
+          <input type="date" id="fromDate-f" class="input-field w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+    
+        <div>
+          <label for="toDate-f" class="block text-sm font-medium text-gray-700 mb-1">To Date:</label>
+          <input type="date" id="toDate-f" class="input-field w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+    
+        <div class="md:col-span-2">
+          <label for="datetime-future" class="block text-sm font-medium text-gray-700 mb-1">Future Date:</label>
+          <input type="date" id="datetime-future" class="input-field w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+      </div>
+    
+      <div class="flex justify-end mb-4">
+        <button onclick="predict()" id="submit-btn-f" class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+          Submit
+        </button>
+      </div>
+    
+      <div class="mt-6">
+        <canvas id="future" class="w-full h-64"></canvas>
+      </div>
+    </section>
+
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
