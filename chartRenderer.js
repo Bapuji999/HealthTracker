@@ -13,6 +13,7 @@ function renderChart() {
     { label: "SMM", data: entries.map(e => e.smm), borderColor: "#FFDC00", fill: false },
     { label: "Fat %", data: entries.map(e => e.fat), borderColor: "#FF4136", fill: false },
     { label: "WHR", data: entries.map(e => e.whr), borderColor: "#FF851B", fill: false },
+    { label: "FatKg", data: entries.map(e => e.fatKg), borderColor: "#0D4715", fill: false },
     { label: "Other Weight", data: entries.map(e => e.otherWeight), borderColor: "#B10DC9", fill: false }
   ];
   healthChartInstance = new Chart(ctx, {
