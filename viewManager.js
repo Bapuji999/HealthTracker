@@ -17,6 +17,7 @@ function renderHistory() {
       <td class="p-2">${e.bmi}</td>
       <td class="p-2">${e.smm}</td>
       <td class="p-2">${e.fat}</td>
+      <td class="p-2">${e.fatKg}</td>
       <td class="p-2">${e.whr}</td>
       <td class="p-2">${e.otherWeight}</td>
     </tr>

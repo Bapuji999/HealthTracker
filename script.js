@@ -8,7 +8,9 @@ function calculateOtherWeight() {
   if (!isNaN(weight) && !isNaN(smm) && !isNaN(fat)) {
     const fatWeight = (fat / 100) * weight;
     const otherWeight = weight - smm - fatWeight;
+    const fatKg = weight - smm - otherWeight;
     document.getElementById("otherWeight").value = otherWeight.toFixed(2);
+    document.getElementById("fatKg").value = fatKg.toFixed(2);
   }
 }
 
@@ -20,6 +22,7 @@ function saveEntry() {
     fat: parseFloat(document.getElementById("fat").value),
     whr: parseFloat(document.getElementById("whr").value),
     otherWeight: parseFloat(document.getElementById("otherWeight").value),
+    fatKg: parseFloat(document.getElementById("fatKg").value),
     datetime: new Date(document.getElementById("datetime").value)
   };
   if (Object.values(entry).some(val => isNaN(val) || (val instanceof Date && isNaN(val)))) {
