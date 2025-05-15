@@ -34,7 +34,8 @@ function calculateFatLossUI() {
 
     document.getElementById('resultRequiredBodyWeight').innerText = requiredBodyWeight.toFixed(2);
     document.getElementById('resultFatToReduce').innerText = fatToReduce.toFixed(2);
-    document.getElementById('resultEstimatedDaysRequired').innerText = CreateDateString(daysRequired);
+    document.getElementById('resultEstimatedDate').innerText = CreateDateString(daysRequired);
+    document.getElementById('resultEstimatedDaysRequired').innerText = daysRequired;
 
     document.getElementById('fatLossResults').classList.remove('hidden');
 }
